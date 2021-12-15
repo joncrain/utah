@@ -1,0 +1,31 @@
+name: Munkipkg Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "payload/**"
+      - "scripts/**"
+      - "build-info.plist"
+  workflow_dispatch:
+
+jobs:
+  munkipkg:
+    runs-on: macos-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@25a956c84d5dd820d28caab9f86b8d183aeeff3d
+
+      - name: Run munkipkg
+        id: munkipkg
+        uses: joncrain/munkipkg-action@f4dabbd110c5d22318a0a0c8e7c5e62a7a281c5a
+
+      - name: Create Release
+        uses: softprops/action-gh-release@affa18ef97bc9db20076945705aba8c516139abd
+        with:
+          files: ${{ steps.munkipkg.outputs.filepath }}
+          tag_name: ${{ steps.munkipkg.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
